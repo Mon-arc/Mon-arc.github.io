@@ -8,4 +8,4 @@ dist/
 .idea/
 
 # Local-only docs (do not publish)
-README.md
+DOCS.md
