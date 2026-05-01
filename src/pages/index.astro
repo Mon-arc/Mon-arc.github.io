@@ -1,0 +1,78 @@
+---
+import Base from '../layouts/Base.astro';
+import Projects from '../components/Projects.astro';
+import Contact from '../components/Contact.astro';
+---
+
+<Base>
+  <section id="hero" class="hero">
+    <h1 class="name">Hassan Elshikh</h1>
+    <div class="rule"></div>
+    <p class="subtitle">
+      Computer Engineering &nbsp;·&nbsp; Embedded &nbsp;·&nbsp; FPGA &nbsp;·&nbsp; Neurotech
+    </p>
+  </section>
+
+  <section id="about">
+    <h2 class="section-label">About</h2>
+    <p class="about-body">[ABOUT TEXT]</p>
+  </section>
+
+  <section id="projects">
+    <h2 class="section-label">Projects</h2>
+    <Projects />
+  </section>
+
+  <section id="skills">
+    <h2 class="section-label">Skills</h2>
+    <p class="skills-body">[SKILLS LIST]</p>
+  </section>
+
+  <section id="contact">
+    <h2 class="section-label">Contact</h2>
+    <Contact />
+  </section>
+</Base>
+
+<style>
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .name {
+    font-size: clamp(1.6rem, 4.2vw, 3.2rem);
+    font-weight: 300;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--text-strong);
+  }
+
+  .rule {
+    width: 52px;
+    height: 0.5px;
+    background: var(--rule);
+    margin: 1.5rem auto;
+  }
+
+  .subtitle {
+    font-size: clamp(0.7rem, 1.3vw, 0.85rem);
+    color: rgba(220, 165, 75, 0.78);
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    line-height: 2.4;
+  }
+
+  .about-body,
+  .skills-body {
+    color: rgba(225, 175, 80, 0.86);
+    font-size: 1rem;
+    line-height: 1.9;
+    max-width: 62ch;
+  }
+</style>

@@ -1,0 +1,42 @@
+[
+  {
+    "title": "Fader",
+    "status": "ongoing",
+    "year": 2026,
+    "tags": ["hardware", "embedded", "audio"],
+    "description": "[DESCRIPTION]",
+    "link": null
+  },
+  {
+    "title": "Soft-core CPU (VHDL)",
+    "status": "complete",
+    "year": null,
+    "tags": ["FPGA", "VHDL", "computer architecture"],
+    "description": "[DESCRIPTION]",
+    "link": null
+  },
+  {
+    "title": "VHDL project 2",
+    "status": "ongoing",
+    "year": null,
+    "tags": ["FPGA", "VHDL"],
+    "description": "[DESCRIPTION]",
+    "link": null
+  },
+  {
+    "title": "Maze Generator",
+    "status": "complete",
+    "year": null,
+    "tags": ["software", "algorithms"],
+    "description": "[DESCRIPTION]",
+    "link": null
+  },
+  {
+    "title": "Static Site Generator",
+    "status": "complete",
+    "year": null,
+    "tags": ["software", "tools"],
+    "description": "[DESCRIPTION]",
+    "link": null
+  }
+]

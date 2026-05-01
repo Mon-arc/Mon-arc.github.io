@@ -1,0 +1,313 @@
+---
+// Vinyl-signal canvas backdrop. Adapted from vinyl_backdrop_v2.html.
+// Renders behind all content (z-index: 0). Pointer-events disabled on every
+// decorative layer so clicks pass through to page content.
+//
+// Tunable constants live at the top of the <script> block below:
+//   AMBER, TEAL          — L / R channel colors (RGB)
+//   L_X, R_X             — horizontal channel center positions (0..1)
+//   AMP_CAP              — max signal amplitude in px
+//   MOUSE_RADIUS, MOUSE_PULL  — interaction strength (mouse-near deflection)
+---
+
+<canvas id="bg" aria-hidden="true"></canvas>
+<div id="vignette" aria-hidden="true"></div>
+<div id="edge-t" aria-hidden="true"></div>
+<div id="edge-b" aria-hidden="true"></div>
+<div class="axis axis-l" aria-hidden="true"></div>
+<div class="axis axis-r" aria-hidden="true"></div>
+<div class="ch-label ch-l" aria-hidden="true">CH&nbsp;L</div>
+<div class="ch-label ch-r" aria-hidden="true">CH&nbsp;R</div>
+
+<style>
+  #bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  #vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(ellipse 36% 80% at 50% 50%,
+      rgba(6, 4, 2, 0.74) 0%,
+      rgba(6, 4, 2, 0.22) 60%,
+      transparent 100%);
+  }
+
+  #edge-t,
+  #edge-b {
+    position: fixed;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  #edge-t {
+    top: 0;
+    background: linear-gradient(to bottom, #060402, transparent);
+  }
+  #edge-b {
+    bottom: 0;
+    background: linear-gradient(to top, #060402, transparent);
+  }
+
+  .axis {
+    position: fixed;
+    top: 0;
+    height: 100%;
+    width: 0.5px;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .axis-l {
+    left: 10%;
+    background: rgba(225, 175, 80, 0.10);
+  }
+  .axis-r {
+    left: 90%;
+    background: rgba(140, 195, 200, 0.10);
+  }
+
+  /* Labels run vertically along the viewport edges so they pair with each
+     channel's color without colliding with nav, content, or the signal. */
+  .ch-label {
+    position: fixed;
+    top: 50%;
+    font-size: 0.9rem;
+    letter-spacing: 0.55em;
+    font-weight: 400;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    white-space: nowrap;
+    transform: translateY(-50%);
+    z-index: 3;
+    pointer-events: none;
+  }
+  /* L reads bottom-to-top (head tilts left); R reads top-to-bottom (head tilts right). */
+  .ch-l {
+    left: 1.6rem;
+    transform: translateY(-50%) rotate(180deg);
+    color: rgba(225, 175, 80, 0.78);
+  }
+  .ch-r {
+    right: 1.6rem;
+    color: rgba(140, 195, 200, 0.78);
+  }
+
+  /* Mobile: single centered channel — hide stereo decorations. */
+  @media (max-width: 767px) {
+    .axis,
+    .ch-label {
+      display: none;
+    }
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext('2d');
+
+    // ── Tunables ──────────────────────────────────────────────
+    const AMBER = [225, 175, 80];   // L channel — warm
+    const TEAL  = [140, 195, 200];  // R channel — cool
+    const L_X = 0.1;               // L center as fraction of width
+    const R_X = 0.9;               // R center as fraction of width
+    const AMP_CAP = 150;            // max signal amplitude (px)
+    const SCROLL = 85;              // px/sec downward
+    const MOBILE_BREAKPOINT = 768;
+    const MOUSE_RADIUS = 220;       // px — interaction range
+    const MOUSE_PULL = 70;          // px — peak deflection strength
+
+    let W, H, t = 0, lastRaf = null, isMobile = false;
+    let mouseX = -1, mouseY = -1;
+
+    // ── Input ─────────────────────────────────────────────────
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+    window.addEventListener('mouseleave', () => {
+      mouseX = -1; mouseY = -1;
+    });
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches[0]) {
+        mouseX = e.touches[0].clientX;
+        mouseY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+    window.addEventListener('touchend', () => {
+      mouseX = -1; mouseY = -1;
+    });
+
+    // ── Deterministic noise ──────────────────────────────────
+    function hash(n) {
+      let x = Math.imul(n ^ (n >>> 16), 0x45d9f3b);
+      x = Math.imul(x ^ (x >>> 16), 0x45d9f3b);
+      return (x ^ (x >>> 16)) >>> 0;
+    }
+    function noiseAt(time, seed) {
+      const s = time * 7919 + seed * 97531;
+      const slot = Math.floor(s);
+      const frac = s - slot;
+      const a = hash(slot)     / 0xffffffff * 2 - 1;
+      const b = hash(slot + 1) / 0xffffffff * 2 - 1;
+      const sm = frac * frac * (3 - 2 * frac);
+      return a + (b - a) * sm;
+    }
+
+    function crackle(time, seed) {
+      const s = time * 11 + seed * 4441;
+      const slot = Math.floor(s);
+      if (hash(slot * 1777 + seed) / 0xffffffff > 0.988) {
+        const frac = s - slot;
+        if (frac < 0.07) {
+          return (hash(slot * 3133 + seed) / 0xffffffff * 2 - 1)
+                 * (1 - frac / 0.07) * 0.52;
+        }
+      }
+      return 0;
+    }
+
+    // Returns a small *time shift* (seconds) — applied additively to the
+    // sine arguments. The earlier version returned a frequency multiplier
+    // and was applied as sin(2π·f·m·t); that produces an instantaneous
+    // frequency of f·(m + m'·t) which drifts unboundedly with t. Adding
+    // a bounded δ(t) instead keeps the wobble stable for any runtime.
+    function wowFlutter(time, seed) {
+      return 0.040 * Math.sin(2 * Math.PI * 0.31 * time + seed)
+           + 0.006 * Math.sin(2 * Math.PI * 8.30 * time + seed * 1.3)
+           + 0.004 * Math.sin(2 * Math.PI * 12.1 * time + seed * 2.1);
+    }
+
+    function envL(time) {
+      return 0.60
+        + 0.28 * Math.sin(2 * Math.PI * 0.075 * time + 0.3)
+        + 0.12 * Math.sin(2 * Math.PI * 0.160 * time + 1.7);
+    }
+    function envR(time) {
+      return 0.62
+        + 0.22 * Math.sin(2 * Math.PI * 0.090 * time + 1.1)
+        + 0.16 * Math.sin(2 * Math.PI * 0.210 * time + 0.5);
+    }
+
+    // ── LEFT channel: bass-heavy ─────────────────────────────
+    function sampleL(time) {
+      const tw = time + wowFlutter(time, 0.5);
+      let s = 0;
+      s += 0.42 * Math.sin(2 * Math.PI * 0.22 * tw);
+      s += 0.26 * Math.sin(2 * Math.PI * 0.55 * tw + 0.40);
+      s += 0.11 * Math.sin(2 * Math.PI * 0.88 * tw + 1.20);
+      s += 0.05 * Math.sin(2 * Math.PI * 1.50 * tw + 0.80);
+      s += 0.03 * Math.sin(2 * Math.PI * 2.60 * tw + 2.10);
+      s += 0.08 * Math.sin(2 * Math.PI * 0.44 * tw + 0.60);
+      s += 0.05 * Math.sin(2 * Math.PI * 0.66 * tw + 1.40);
+      s += 0.020 * noiseAt(time, 0);
+      s += crackle(time, 0);
+      return s * envL(time);
+    }
+
+    // ── RIGHT channel: treble-heavy ──────────────────────────
+    function sampleR(time) {
+      const tw = time + wowFlutter(time + 0.004, 1.2);
+      let s = 0;
+      s += 0.12 * Math.sin(2 * Math.PI * 0.22 * tw + 0.10);
+      s += 0.22 * Math.sin(2 * Math.PI * 0.65 * tw + 0.90);
+      s += 0.28 * Math.sin(2 * Math.PI * 1.08 * tw + 1.60);
+      s += 0.20 * Math.sin(2 * Math.PI * 1.78 * tw + 0.50);
+      s += 0.12 * Math.sin(2 * Math.PI * 3.10 * tw + 2.00);
+      s += 0.07 * Math.sin(2 * Math.PI * 2.20 * tw + 1.10);
+      s += 0.05 * Math.sin(2 * Math.PI * 4.30 * tw + 0.30);
+      s += 0.018 * noiseAt(time, 7);
+      s += crackle(time + 0.008, 1);
+      return s * envR(time);
+    }
+
+    // ── Mouse-proximity gravitational deflection ─────────────
+    // Returns a horizontal offset (px) added to the signal at row y.
+    // Smoothly pulls the signal toward the cursor when within MOUSE_RADIUS.
+    function mouseDeflection(y, centerX) {
+      if (mouseX < 0) return 0;
+      const dx = mouseX - centerX;
+      const dy = mouseY - y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > MOUSE_RADIUS) return 0;
+      const k = 1 - dist / MOUSE_RADIUS;       // 1 at cursor, 0 at edge
+      return Math.sign(dx) * k * k * MOUSE_PULL;
+    }
+
+    // ── Draw one vertical waveform with 4-layer glow ─────────
+    function drawWaveformV(sampleFn, centerX, amplitude, color) {
+      const pts = new Float32Array(H);
+      for (let y = 0; y < H; y++) {
+        pts[y] = centerX
+               + sampleFn(t - y / SCROLL) * amplitude
+               + mouseDeflection(y, centerX);
+      }
+
+      const [r, g, b] = color;
+      // Outer bloom → soft glow → halo → crisp core
+      const layers = [
+        { w: 24,  a: 0.022 },
+        { w: 11,  a: 0.060 },
+        { w: 3.5, a: 0.190 },
+        { w: 1.3, a: 0.95  },
+      ];
+
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      for (const { w, a } of layers) {
+        ctx.beginPath();
+        ctx.lineWidth = w;
+        ctx.strokeStyle = `rgba(${r},${g},${b},${a})`;
+        for (let y = 0; y < H; y++) {
+          y === 0 ? ctx.moveTo(pts[y], y) : ctx.lineTo(pts[y], y);
+        }
+        ctx.stroke();
+      }
+    }
+
+    function drawScanlines() {
+      ctx.fillStyle = 'rgba(0,0,0,0.020)';
+      for (let y = 0; y < H; y += 3) ctx.fillRect(0, y, W, 1);
+    }
+
+    function frame(ts) {
+      if (!lastRaf) lastRaf = ts;
+      const dt = Math.min((ts - lastRaf) / 1000, 0.05);
+      lastRaf = ts;
+      t += dt;
+
+      ctx.fillStyle = '#060402';
+      ctx.fillRect(0, 0, W, H);
+
+      const baseAmp = Math.min(W * 0.155, AMP_CAP);
+      if (isMobile) {
+        // Single centered L channel, halved amplitude.
+        drawWaveformV(sampleL, W * 0.5, baseAmp * 0.5, AMBER);
+      } else {
+        drawWaveformV(sampleL, W * L_X, baseAmp, AMBER);
+        drawWaveformV(sampleR, W * R_X, baseAmp, TEAL);
+      }
+
+      drawScanlines();
+      requestAnimationFrame(frame);
+    }
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+      isMobile = W < MOBILE_BREAKPOINT;
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    requestAnimationFrame(frame);
+  })();
+</script>

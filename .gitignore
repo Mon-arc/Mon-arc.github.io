@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+.env
+.env.local
+.vscode/
+.idea/
+
+# Local-only docs (do not publish)
+README.md

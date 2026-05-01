@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Backdrop — Stereo Vinyl Signal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #060402;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    font-family: 'DM Mono', 'Courier New', monospace;
+    cursor: none;
+  }
+
+  #bg { position: fixed; inset: 0; z-index: 0; }
+
+  /* Narrows the vignette to protect center content but leave the sides open */
+  #vignette {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(ellipse 30% 80% at 50% 50%,
+      rgba(6,4,2,0.74) 0%,
+      rgba(6,4,2,0.22) 60%,
+      transparent 100%);
+  }
+
+  /* Top/bottom edge fades — waveform "scrolls in" from top */
+  #edge-t {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100px;
+    background: linear-gradient(to bottom, #060402, transparent);
+    z-index: 2; pointer-events: none;
+  }
+  #edge-b {
+    position: fixed; bottom: 0; left: 0; width: 100%; height: 100px;
+    background: linear-gradient(to top, #060402, transparent);
+    z-index: 2; pointer-events: none;
+  }
+
+  .ch-label {
+    position: fixed; top: 22px;
+    font-size: 0.57rem; letter-spacing: 0.22em;
+    color: rgba(195,135,40,0.28);
+    z-index: 3; pointer-events: none;
+  }
+  .ch-l { left: 22%; transform: translateX(-50%); }
+  .ch-r { left: 78%; transform: translateX(-50%); }
+
+  /* Subtle vertical axis line for each channel */
+  .axis {
+    position: fixed; top: 0; height: 100%;
+    width: 0.5px; background: rgba(195,135,40,0.07);
+    z-index: 1; pointer-events: none;
+  }
+  .axis-l { left: 22%; }
+  .axis-r { left: 78%; }
+
+  #content {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center; z-index: 4;
+    pointer-events: none; user-select: none;
+  }
+  .name {
+    font-size: clamp(1.4rem, 3.8vw, 3rem);
+    font-weight: 300;
+    color: rgba(215,160,65,0.91);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+  }
+  .rule {
+    width: 42px; height: 0.5px;
+    background: rgba(210,155,60,0.38);
+    margin: 1.3rem auto;
+  }
+  .sub {
+    font-size: clamp(0.50rem, 1.05vw, 0.66rem);
+    color: rgba(195,135,40,0.38);
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    line-height: 2.4;
+  }
+
+  /* Crossfader hint */
+  #fader-hint {
+    position: fixed; bottom: 36px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.50rem; letter-spacing: 0.18em;
+    color: rgba(195,135,40,0.14);
+    z-index: 5; pointer-events: none;
+    white-space: nowrap;
+  }
+  #fader-bar {
+    position: fixed; bottom: 26px;
+    height: 1px; z-index: 5; pointer-events: none;
+    background: rgba(195,135,40,0.18);
+    transition: left 0.05s, width 0.05s;
+  }
+
+  #status {
+    position: fixed; bottom: 10px; right: 18px;
+    font-size: 0.50rem; letter-spacing: 0.12em;
+    color: rgba(195,135,40,0.14);
+    z-index: 5; pointer-events: none;
+  }
+
+  #cursor {
+    position: fixed; width: 4px; height: 4px;
+    border-radius: 50%; background: rgba(215,160,65,0.65);
+    pointer-events: none; z-index: 100;
+    transform: translate(-50%, -50%);
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<div id="vignette"></div>
+<div id="edge-t"></div>
+<div id="edge-b"></div>
+<div class="axis axis-l"></div>
+<div class="axis axis-r"></div>
+<div class="ch-label ch-l">CH L ↓</div>
+<div class="ch-label ch-r">CH R ↓</div>
+
+<div id="content">
+  <div class="name">Hassan ─────</div>
+  <div class="rule"></div>
+  <div class="sub">
+    Computer Engineering<br>
+    Embedded &nbsp;·&nbsp; FPGA &nbsp;·&nbsp; Neurotech
+  </div>
+</div>
+
+<div id="fader-hint">← crossfader →</div>
+<div id="fader-bar"></div>
+<div id="status"><span id="ts">t = 0.000s</span> &nbsp;·&nbsp; <span id="fps">60 fps</span></div>
+<div id="cursor"></div>
+
+<script>
+const canvas = document.getElementById('bg');
+const ctx    = canvas.getContext('2d');
+const faderBar = document.getElementById('fader-bar');
+
+let W, H, t = 0, lastRaf = null;
+let frameCount = 0, fpsTimer = 0, displayFps = 60;
+let mouseX = 0.5, mouseY = 0.5; // normalized
+
+const SCROLL = 68;           // px/sec downward (new signal enters at top)
+const AMBER  = [200, 142, 48];
+
+// ── Input ─────────────────────────────────────────────────────
+const cur = document.getElementById('cursor');
+window.addEventListener('mousemove', e => {
+  mouseX = e.clientX / window.innerWidth;
+  mouseY = e.clientY / window.innerHeight;
+  cur.style.left = e.clientX + 'px';
+  cur.style.top  = e.clientY + 'px';
+});
+
+// ── Deterministic noise (scrolls coherently with signal) ──────
+function hash(n) {
+  let x = Math.imul(n ^ (n >>> 16), 0x45d9f3b);
+  x = Math.imul(x ^ (x >>> 16), 0x45d9f3b);
+  return (x ^ (x >>> 16)) >>> 0;
+}
+function noiseAt(t, seed) {
+  const s = t * 7919 + seed * 97531;
+  const slot = Math.floor(s);
+  const frac = s - slot;
+  const a = hash(slot)     / 0xffffffff * 2 - 1;
+  const b = hash(slot + 1) / 0xffffffff * 2 - 1;
+  const sm = frac * frac * (3 - 2 * frac);
+  return a + (b - a) * sm;
+}
+
+// ── Vinyl crackle (~1 per 6s per channel) ────────────────────
+function crackle(t, seed) {
+  const s    = t * 11 + seed * 4441;
+  const slot = Math.floor(s);
+  if (hash(slot * 1777 + seed) / 0xffffffff > 0.988) {
+    const frac = s - slot;
+    if (frac < 0.07) {
+      return (hash(slot * 3133 + seed) / 0xffffffff * 2 - 1)
+             * (1 - frac / 0.07) * 0.52;
+    }
+  }
+  return 0;
+}
+
+// ── Wow & flutter (shared motor, slight channel variation) ────
+function wowFlutter(t, seed) {
+  return 1
+    + 0.013 * Math.sin(2 * Math.PI * 0.31 * t + seed)
+    + 0.003 * Math.sin(2 * Math.PI * 8.30 * t + seed * 1.3)
+    + 0.002 * Math.sin(2 * Math.PI * 12.1 * t + seed * 2.1);
+}
+
+// ── Amplitude envelopes (independent musical dynamics) ───────
+function envL(t) {
+  return 0.60
+    + 0.28 * Math.sin(2*Math.PI * 0.075 * t + 0.3)
+    + 0.12 * Math.sin(2*Math.PI * 0.160 * t + 1.7);
+}
+function envR(t) {
+  return 0.62
+    + 0.22 * Math.sin(2*Math.PI * 0.090 * t + 1.1)
+    + 0.16 * Math.sin(2*Math.PI * 0.210 * t + 0.5);
+}
+
+// ── LEFT channel: bass-heavy ──────────────────────────────────
+// Big, slow undulations — low freq content dominates.
+// At SCROLL=68 px/s: 0.22 Hz → ~309px/cycle, 0.55 Hz → ~124px/cycle
+function sampleL(t) {
+  const m = wowFlutter(t, 0.5);
+  let s = 0;
+  s += 0.42 * Math.sin(2*Math.PI * 0.22 * m * t);           // dominant bass
+  s += 0.26 * Math.sin(2*Math.PI * 0.55 * m * t + 0.40);   // warm mid
+  s += 0.11 * Math.sin(2*Math.PI * 0.88 * m * t + 1.20);   // light upper mid
+  s += 0.05 * Math.sin(2*Math.PI * 1.50 * m * t + 0.80);   // gentle high
+  s += 0.03 * Math.sin(2*Math.PI * 2.60 * m * t + 2.10);   // barely-there presence
+  s += 0.08 * Math.sin(2*Math.PI * 0.44 * m * t + 0.60);   // 2nd harmonic warmth
+  s += 0.05 * Math.sin(2*Math.PI * 0.66 * m * t + 1.40);   // 3rd harmonic
+  s += 0.020 * noiseAt(t, 0);
+  s += crackle(t, 0);
+  return s * envL(t);
+}
+
+// ── RIGHT channel: treble-heavy ───────────────────────────────
+// Fast, complex oscillations — high freq content dominates.
+// At SCROLL=68 px/s: 1.78 Hz → ~38px/cycle, 3.10 Hz → ~22px/cycle
+// The waveform looks "busier" and more detailed than L.
+function sampleR(t) {
+  const m = wowFlutter(t + 0.004, 1.2); // slightly different flutter phase
+  let s = 0;
+  s += 0.12 * Math.sin(2*Math.PI * 0.22 * m * t + 0.10);   // very little bass
+  s += 0.22 * Math.sin(2*Math.PI * 0.65 * m * t + 0.90);   // modest mid
+  s += 0.28 * Math.sin(2*Math.PI * 1.08 * m * t + 1.60);   // strong upper mid
+  s += 0.20 * Math.sin(2*Math.PI * 1.78 * m * t + 0.50);   // strong high
+  s += 0.12 * Math.sin(2*Math.PI * 3.10 * m * t + 2.00);   // bright presence
+  s += 0.07 * Math.sin(2*Math.PI * 2.20 * m * t + 1.10);   // overtone
+  s += 0.05 * Math.sin(2*Math.PI * 4.30 * m * t + 0.30);   // air / shimmer
+  s += 0.018 * noiseAt(t, 7);
+  s += crackle(t + 0.008, 1);
+  return s * envR(t);
+}
+
+// ── Draw one vertical waveform ────────────────────────────────
+function drawWaveformV(sampleFn, centerX, amplitude) {
+  // Pre-compute all Y samples into a typed array
+  const pts = new Float32Array(H);
+  for (let y = 0; y < H; y++) {
+    // y=0 → newest (t_now), y=H → oldest (t - H/SCROLL)
+    pts[y] = centerX + sampleFn(t - y / SCROLL) * amplitude;
+  }
+
+  const [r, g, b] = AMBER;
+
+  // 3-layer glow: outer soft → middle halo → crisp core
+  const layers = [
+    { w: 11, a: 0.040 },
+    { w: 3.5, a: 0.150 },
+    { w: 1.1, a: 0.820 },
+  ];
+  for (const { w, a } of layers) {
+    ctx.beginPath();
+    ctx.lineWidth   = w;
+    ctx.strokeStyle = `rgba(${r},${g},${b},${a})`;
+    ctx.lineJoin    = 'round';
+    for (let y = 0; y < H; y++) {
+      y === 0 ? ctx.moveTo(pts[y], y) : ctx.lineTo(pts[y], y);
+    }
+    ctx.stroke();
+  }
+}
+
+// ── Scanlines ─────────────────────────────────────────────────
+function drawScanlines() {
+  ctx.fillStyle = 'rgba(0,0,0,0.020)';
+  for (let y = 0; y < H; y += 3) ctx.fillRect(0, y, W, 1);
+}
+
+// ── Update crossfader indicator ───────────────────────────────
+function updateFaderUI() {
+  // fader bar spans from L center to R center, knob at mouseX
+  const lX = W * 0.22;
+  const rX = W * 0.78;
+  faderBar.style.left  = lX + 'px';
+  faderBar.style.width = (rX - lX) + 'px';
+}
+
+// ── Main loop ─────────────────────────────────────────────────
+function frame(ts) {
+  if (!lastRaf) lastRaf = ts;
+  const dt = Math.min((ts - lastRaf) / 1000, 0.05);
+  lastRaf = ts;
+  t += dt;
+
+  frameCount++; fpsTimer += dt;
+  if (fpsTimer >= 0.5) {
+    displayFps = Math.round(frameCount / fpsTimer);
+    frameCount = fpsTimer = 0;
+  }
+
+  ctx.fillStyle = '#060402';
+  ctx.fillRect(0, 0, W, H);
+
+  // Crossfader: mouse X controls L/R balance
+  // Full left  → L at 100%, R at ~15%
+  // Center     → both at 100%
+  // Full right → R at 100%, L at ~15%
+  const fade = mouseX; // 0 = full left, 1 = full right
+  const lGain = Math.min(1, 2 - 2 * fade);   // 1→0 as mouse moves right
+  const rGain = Math.min(1, 2 * fade);        // 0→1 as mouse moves right
+  const lFloor = 0.15, rFloor = 0.15;         // channels never fully mute
+  const lAmpMult = lFloor + (1 - lFloor) * lGain;
+  const rAmpMult = rFloor + (1 - rFloor) * rGain;
+
+  const baseAmp = Math.min(W * 0.155, 155);
+  drawWaveformV(sampleL, W * 0.22, baseAmp * lAmpMult);
+  drawWaveformV(sampleR, W * 0.78, baseAmp * rAmpMult);
+
+  drawScanlines();
+  updateFaderUI();
+
+  document.getElementById('ts').textContent  = `t = ${t.toFixed(3)}s`;
+  document.getElementById('fps').textContent = `${displayFps} fps`;
+
+  requestAnimationFrame(frame);
+}
+
+// ── Resize ────────────────────────────────────────────────────
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

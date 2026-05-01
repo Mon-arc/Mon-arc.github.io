@@ -1,0 +1,168 @@
+---
+// Top nav. Transparent — disappears into the backdrop.
+// Mobile: collapses to a hamburger that toggles a full-screen overlay.
+// To change links, edit the `links` array below.
+const links = [
+  { href: '#about',    label: 'About'    },
+  { href: '#projects', label: 'Projects' },
+  { href: '#skills',   label: 'Skills'   },
+  { href: '#contact',  label: 'Contact'  },
+];
+const github = 'https://github.com/Mon-arc';
+const brand = 'H.';
+---
+
+<nav class="nav" aria-label="Primary">
+  <a class="brand" href="#hero">{brand}</a>
+
+  <ul class="links" role="list">
+    {links.map(({ href, label }) => (
+      <li><a href={href}>{label}</a></li>
+    ))}
+    <li>
+      <a href={github} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true">
+          <path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+      </a>
+    </li>
+  </ul>
+
+  <button class="hamburger" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div id="mobile-menu" class="overlay" role="dialog" aria-modal="true" hidden>
+  <ul role="list">
+    {links.map(({ href, label }) => (
+      <li><a href={href}>{label}</a></li>
+    ))}
+    <li>
+      <a href={github} target="_blank" rel="noopener noreferrer">GitHub</a>
+    </li>
+  </ul>
+</div>
+
+<style>
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.4rem 2rem;
+    background: transparent;
+    font-size: 0.82rem;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .brand {
+    color: var(--text);
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    font-size: 0.95rem;
+  }
+
+  .links {
+    display: flex;
+    gap: 1.9rem;
+    align-items: center;
+    list-style: none;
+  }
+  .links a {
+    color: rgba(220, 165, 75, 0.78);
+    transition: color 0.15s;
+  }
+  .links a:hover {
+    color: var(--text-strong);
+  }
+
+  .hamburger {
+    display: none;
+    background: transparent;
+    border: 0;
+    padding: 0.5rem;
+    cursor: pointer;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .hamburger span {
+    display: block;
+    width: 22px;
+    height: 1px;
+    background: rgba(215, 160, 65, 0.7);
+    transition: transform 0.2s, opacity 0.2s;
+  }
+  .nav.is-open .hamburger span:nth-child(1) {
+    transform: translateY(5px) rotate(45deg);
+  }
+  .nav.is-open .hamburger span:nth-child(2) {
+    opacity: 0;
+  }
+  .nav.is-open .hamburger span:nth-child(3) {
+    transform: translateY(-5px) rotate(-45deg);
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgba(6, 4, 2, 0.96);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .overlay[hidden] { display: none; }
+  .overlay ul {
+    list-style: none;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .overlay a {
+    color: rgba(215, 160, 65, 0.88);
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 767px) {
+    .links { display: none; }
+    .hamburger { display: flex; }
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const nav = document.querySelector('.nav');
+    const btn = nav.querySelector('.hamburger');
+    const overlay = document.getElementById('mobile-menu');
+
+    function setOpen(open) {
+      nav.classList.toggle('is-open', open);
+      btn.setAttribute('aria-expanded', String(open));
+      if (open) overlay.removeAttribute('hidden');
+      else overlay.setAttribute('hidden', '');
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+
+    btn.addEventListener('click', () => {
+      setOpen(nav.getAttribute('class').includes('is-open') ? false : true);
+    });
+
+    overlay.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => setOpen(false));
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && nav.classList.contains('is-open')) setOpen(false);
+    });
+  })();
+</script>

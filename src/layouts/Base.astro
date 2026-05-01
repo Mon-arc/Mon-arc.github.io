@@ -1,0 +1,127 @@
+---
+import Backdrop from '../components/Backdrop.astro';
+import Nav from '../components/Nav.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Hassan — Computer Engineering',
+  description = 'Computer Engineering · Embedded · FPGA · Neurotech',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&display=swap"
+    />
+    <title>{title}</title>
+    <!-- Analytics: GoatCounter (privacy-preserving). Added per request, overrides
+         the original brief's "no tracking" rule. -->
+    <script
+      data-goatcounter="https://mon-arc.goatcounter.com/count"
+      async
+      src="//gc.zgo.at/count.js"
+    ></script>
+  </head>
+  <body>
+    <Backdrop />
+    <Nav />
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bg: #060402;
+
+    /* Warm — primary brand */
+    --text: rgba(225, 175, 80, 0.94);
+    --text-strong: rgba(235, 190, 100, 1);
+    --muted: rgba(200, 145, 55, 0.62);
+    --rule: rgba(215, 160, 65, 0.45);
+
+    /* Cool — accent (also used for R channel and "complete" status) */
+    --accent: rgba(140, 195, 200, 0.85);
+    --accent-soft: rgba(140, 195, 200, 0.55);
+
+    --font-mono: 'DM Mono', 'Courier New', monospace;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  main {
+    position: relative;
+    z-index: 10;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  section {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 6rem 2rem;
+    scroll-margin-top: 4rem;
+  }
+
+  h1, h2, h3 {
+    font-weight: 300;
+    letter-spacing: 0.2em;
+  }
+
+  .section-label {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    padding-bottom: 1rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 0.5px solid var(--rule);
+  }
+
+  ::selection {
+    background: rgba(215, 160, 65, 0.25);
+    color: rgba(215, 160, 65, 1);
+  }
+
+  @media (max-width: 767px) {
+    section {
+      padding: 4rem 1.25rem;
+    }
+  }
+</style>

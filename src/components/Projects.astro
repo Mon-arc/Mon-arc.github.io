@@ -1,0 +1,108 @@
+---
+// Projects list — driven entirely by /src/data/projects.json.
+// To add/edit/remove a project: edit projects.json. No code changes required.
+import projects from '../data/projects.json';
+---
+
+<ol class="projects" role="list">
+  {projects.map((p) => (
+    <li class="project">
+      <header>
+        <h3 class="title">
+          {p.link
+            ? <a href={p.link} target="_blank" rel="noopener noreferrer">{p.title}</a>
+            : p.title}
+        </h3>
+        <span class="meta">
+          {p.year && <span class="year">{p.year}</span>}
+          <span class={`status status--${p.status}`}>{p.status}</span>
+        </span>
+        <span class="tags">{p.tags.join(' · ')}</span>
+      </header>
+      <p class="desc">{p.description}</p>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .projects {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2.75rem;
+  }
+
+  .project header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.7rem;
+  }
+
+  .title {
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: var(--text-strong);
+  }
+
+  .meta {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .year {
+    color: var(--muted);
+  }
+  .status {
+    font-weight: 400;
+  }
+  .status--ongoing {
+    color: var(--text);
+  }
+  .status--ongoing::before {
+    content: '●';
+    font-size: 0.55rem;
+    margin-right: 0.45rem;
+    vertical-align: 1px;
+    color: var(--text);
+  }
+  .status--complete {
+    color: var(--accent);
+  }
+  .status--complete::before {
+    content: '○';
+    font-size: 0.6rem;
+    margin-right: 0.4rem;
+    vertical-align: 1px;
+    color: var(--accent-soft);
+  }
+
+  .tags {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+  }
+
+  .desc {
+    color: rgba(225, 175, 80, 0.82);
+    font-size: 0.95rem;
+    line-height: 1.75;
+    max-width: 62ch;
+  }
+
+  @media (max-width: 767px) {
+    .project header {
+      gap: 0.75rem;
+    }
+    .tags {
+      margin-left: 0;
+      flex-basis: 100%;
+    }
+  }
+</style>
