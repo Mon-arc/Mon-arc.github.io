@@ -21,7 +21,7 @@
     "year": 2026,
     "tags": ["vhdl", "verilog", "mips assembly", "quartus prime", "fpga", "computer architecture"],
     "description": "[DESCRIPTION]",
-    "image": "projects/200.gif",
+    "image": "/projects/200.gif",
     "link": null,
     "body": []
   },
