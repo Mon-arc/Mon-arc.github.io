@@ -1,57 +1,66 @@
 ---
-// Contact: email shown as "user at domain" plain text + Copy email button.
-// The address is assembled in JS at click time (not present in HTML source).
+// Email + copy-on-click — the entire pill IS the button. Clicking anywhere
+// on the email text copies the address. The address is assembled in JS at
+// click time so no literal "@" appears in HTML source.
 // To change the email: edit USER and DOMAIN in the inline script below.
 ---
 
 <div class="contact">
-  <p class="email" aria-label="Email address">
-    <span class="user">hassan.elshikh</span>
-    <span class="sep"> at </span>
-    <span class="domain">torontomu.ca</span>
-  </p>
-  <button id="copy-email" class="copy-btn" type="button">
-    <span class="label">Copy email</span>
+  <button id="copy-email" class="copy-btn" type="button" aria-label="Copy email to clipboard">
+    <span class="email" aria-hidden="true">
+      <span class="user">hassan.elshikh</span><span class="sep"> [at] </span><span class="domain">torontomu.ca</span>
+    </span>
+    <span class="confirm" aria-hidden="true">Copied</span>
   </button>
 </div>
 
 <style>
   .contact {
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-  }
-
-  .email {
-    font-size: 1.05rem;
-    color: var(--text);
-    letter-spacing: 0.08em;
-  }
-  .sep {
-    color: var(--muted);
   }
 
   .copy-btn {
     background: transparent;
-    border: 0.5px solid var(--rule);
+    border: 0.75px solid var(--rule);
     color: var(--text);
     font-family: inherit;
-    font-size: 0.75rem;
-    font-weight: 400;
-    letter-spacing: 0.22em;
+    font-size: clamp(0.65rem, 1vw, 0.8rem);
+    font-weight: 500;
+    letter-spacing: 0.32em;
     text-transform: uppercase;
-    padding: 0.7rem 1.4rem;
+    padding: 0.9rem 1.6rem;
     cursor: pointer;
-    transition: border-color 0.15s, color 0.15s;
+    transition:
+      color 0.18s ease,
+      border-color 0.18s ease;
   }
+  /* Hovering anywhere on the button shifts color + border to teal. All
+     children inherit color by default, so .user / .sep / .domain follow. */
   .copy-btn:hover {
-    border-color: var(--text);
-    color: var(--text-strong);
+    color: var(--accent);
+    border-color: var(--accent);
   }
   .copy-btn[data-copied='true'] {
     color: var(--accent);
-    border-color: var(--accent-soft);
+    border-color: var(--accent);
+  }
+
+  /* [at] is dimmed via opacity instead of its own color, so it inherits
+     whatever color the button currently has and shifts to teal on hover. */
+  .sep {
+    opacity: 0.55;
+  }
+
+  .confirm {
+    display: none;
+  }
+  .copy-btn[data-copied='true'] .email {
+    display: none;
+  }
+  .copy-btn[data-copied='true'] .confirm {
+    display: inline;
   }
 </style>
 
@@ -59,21 +68,20 @@
   (() => {
     const USER = 'hassan.elshikh';
     const DOMAIN = 'torontomu.ca';
+
     const btn = document.getElementById('copy-email');
-    const label = btn.querySelector('.label');
-    const original = label.textContent;
+    let timer = null;
 
     btn.addEventListener('click', async () => {
       const address = [USER, DOMAIN].join('@');
       try {
         await navigator.clipboard.writeText(address);
-        label.textContent = 'Copied';
         btn.dataset.copied = 'true';
       } catch {
-        label.textContent = 'Copy failed';
+        btn.dataset.copied = 'failed';
       }
-      setTimeout(() => {
-        label.textContent = original;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
         delete btn.dataset.copied;
       }, 1600);
     });

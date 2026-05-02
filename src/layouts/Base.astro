@@ -3,13 +3,15 @@ import Backdrop from '../components/Backdrop.astro';
 import Nav from '../components/Nav.astro';
 
 interface Props {
+	name?: string;
   title?: string;
   description?: string;
 }
 
 const {
-  title = 'Hassan — Computer Engineering',
-  description = 'Computer Engineering · Embedded · FPGA · Neurotech',
+  name = 'Hassan Elshikh',
+	title = "Computer Engineer",
+  description = 'Embedded · Neurotech · FPGA',
 } = Astro.props;
 ---
 
@@ -49,14 +51,16 @@ const {
     --bg: #060402;
 
     /* Warm — primary brand */
-    --text: rgba(225, 175, 80, 0.94);
-    --text-strong: rgba(235, 190, 100, 1);
-    --muted: rgba(200, 145, 55, 0.62);
+    --text: rgba(228, 178, 85, 0.95);
+    --text-strong: rgba(240, 195, 105, 1);
+    --muted: rgba(195, 140, 50, 0.7);
+    --faint: rgba(195, 140, 50, 0.42);
     --rule: rgba(215, 160, 65, 0.45);
 
-    /* Cool — accent (also used for R channel and "complete" status) */
-    --accent: rgba(140, 195, 200, 0.85);
-    --accent-soft: rgba(140, 195, 200, 0.55);
+    /* Cool — accent (R channel, "complete" status, link hover, ↗ indicator) */
+    --accent: rgba(150, 205, 210, 0.92);
+    --accent-soft: rgba(150, 205, 210, 0.62);
+    --accent-faint: rgba(150, 205, 210, 0.30);
 
     --font-mono: 'DM Mono', 'Courier New', monospace;
   }
@@ -89,12 +93,16 @@ const {
   a {
     color: inherit;
     text-decoration: none;
+    transition: color 0.18s ease;
+  }
+  a:hover {
+    color: var(--accent);
   }
 
   section {
     max-width: 980px;
     margin: 0 auto;
-    padding: 6rem 2rem;
+    padding: 8rem 2rem;
     scroll-margin-top: 4rem;
   }
 
@@ -109,8 +117,8 @@ const {
     color: var(--text);
     letter-spacing: 0.3em;
     text-transform: uppercase;
-    padding-bottom: 1rem;
-    margin-bottom: 2.5rem;
+    padding-bottom: 1.1rem;
+    margin-bottom: 3.25rem;
     border-bottom: 0.5px solid var(--rule);
   }
 
@@ -121,7 +129,7 @@ const {
 
   @media (max-width: 767px) {
     section {
-      padding: 4rem 1.25rem;
+      padding: 5rem 1.5rem;
     }
   }
 </style>

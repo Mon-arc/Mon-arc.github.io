@@ -1,0 +1,163 @@
+---
+// One page per entry in /src/data/projects.json. Slug-based routing.
+// Astro generates /projects/<slug>/ at build time via getStaticPaths.
+import Base from '../../layouts/Base.astro';
+import projects from '../../data/projects.json';
+
+export async function getStaticPaths() {
+  return projects.map((p) => ({
+    params: { slug: p.slug },
+    props: { project: p },
+  }));
+}
+
+const { project } = Astro.props;
+---
+
+<Base title={`${project.title} — Hassan Elshikh`}>
+  <article class="project-page">
+    <a class="back" href="/#projects">← Projects</a>
+
+    <header>
+      <h1>{project.title}</h1>
+      <div class="meta">
+        {project.year && <span class="year">{project.year}</span>}
+        <span class={`status status--${project.status}`}>{project.status}</span>
+        <span class="tags">{project.tags.join(' · ')}</span>
+      </div>
+      {project.link && (
+        <a class="ext-link" href={project.link} target="_blank" rel="noopener noreferrer">
+          {project.link.replace(/^https?:\/\//, '')}
+          <span aria-hidden="true">↗</span>
+        </a>
+      )}
+    </header>
+
+    {project.image && (
+      <figure class="hero-image">
+        <img src={project.image} alt={project.title} />
+      </figure>
+    )}
+
+    {project.body && project.body.length > 0 ? (
+      <div class="body">
+        {project.body.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+    ) : (
+      <p class="placeholder">[Detailed write-up coming.]</p>
+    )}
+  </article>
+</Base>
+
+<style>
+  .project-page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 8rem 2rem 6rem;
+  }
+
+  .back {
+    display: inline-block;
+    color: var(--muted);
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 3rem;
+    transition: color 0.18s ease;
+  }
+  .back:hover {
+    color: var(--accent);
+  }
+
+  header h1 {
+    font-size: clamp(1.5rem, 3.6vw, 2.4rem);
+    font-weight: 300;
+    letter-spacing: 0.18em;
+    color: var(--text-strong);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .year { color: var(--muted); }
+  .status { font-weight: 400; }
+  .status--ongoing { color: var(--text); }
+  .status--ongoing::before {
+    content: '●';
+    font-size: 0.55rem;
+    margin-right: 0.45rem;
+    vertical-align: 1px;
+  }
+  .status--complete { color: var(--accent); }
+  .status--complete::before {
+    content: '○';
+    font-size: 0.6rem;
+    margin-right: 0.4rem;
+    vertical-align: 1px;
+  }
+  .tags {
+    color: var(--muted);
+    letter-spacing: 0.14em;
+  }
+
+  .ext-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--accent);
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    border-bottom: 0.5px solid var(--accent-faint);
+    padding-bottom: 0.25rem;
+    margin-bottom: 3rem;
+  }
+  .ext-link:hover {
+    color: var(--text-strong);
+    border-bottom-color: var(--text);
+  }
+
+  .hero-image {
+    margin: 3rem 0;
+    border: 0.5px solid var(--rule);
+  }
+  .hero-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    color: rgba(228, 178, 85, 0.88);
+    font-size: 1rem;
+    line-height: 1.85;
+  }
+  .body p {
+    max-width: 62ch;
+  }
+
+  .placeholder {
+    color: var(--faint);
+    font-style: italic;
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 767px) {
+    .project-page {
+      padding: 6rem 1.5rem 4rem;
+    }
+    .back {
+      margin-bottom: 2rem;
+    }
+  }
+</style>

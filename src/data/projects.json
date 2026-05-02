@@ -1,42 +1,61 @@
 [
   {
     "title": "Fader",
+    "slug": "fader",
     "status": "ongoing",
     "year": 2026,
-    "tags": ["hardware", "embedded", "audio"],
-    "description": "[DESCRIPTION]",
-    "link": null
+    "tags": ["STM32", "C/C++", "PCB design", "KiCad", "Signal Processing", "Circuit Design", "embedded"],
+    "description": "A multi-channel mixer with motorized faders to consolidate audio signals and unify them as one output signal. RCA Inputs for analogue signals and USB-C for PC audio input, with RCA output for compatibility with common consumer amplifiers to drive audiophile headphones or speakers. Motorized faders for bidirectional control over respective channel volume either with physical fader movement or with software controls. STM32 used for motor controls, signal volume/attenuation control, serial communication, and SPI communication with circuit components.",
+    "image": "/projects/Fader diagram.png",
+    "link": null,
+    "body": [
+			"This project began because blah blah blah.",
+			"It's not done yet blah blah blah.",
+			"Next steps include blah blah blah."
+		]
   },
   {
-    "title": "Soft-core CPU (VHDL)",
+    "title": "RISC CPU",
+    "slug": "risc-cpu",
     "status": "complete",
-    "year": null,
+    "year": 2026,
     "tags": ["FPGA", "VHDL", "computer architecture"],
     "description": "[DESCRIPTION]",
-    "link": null
+    "image": null,
+    "link": null,
+    "body": []
   },
   {
-    "title": "VHDL project 2",
-    "status": "ongoing",
-    "year": null,
-    "tags": ["FPGA", "VHDL"],
+    "title": "Custom 8-bit CPUs",
+    "slug": "custom-8bit-cpus",
+    "status": "complete",
+    "year": 2024,
+    "tags": ["FPGA", "VHDL", "digital design"],
     "description": "[DESCRIPTION]",
-    "link": null
+    "image": null,
+    "link": null,
+    "body": []
   },
   {
     "title": "Maze Generator",
+    "slug": "maze-generator",
     "status": "complete",
-    "year": null,
+    "year": 2025,
     "tags": ["software", "algorithms"],
     "description": "[DESCRIPTION]",
-    "link": null
+    "image": null,
+    "link": null,
+    "body": []
   },
   {
     "title": "Static Site Generator",
+    "slug": "static-site-generator",
     "status": "complete",
-    "year": null,
+    "year": 2025,
     "tags": ["software", "tools"],
     "description": "[DESCRIPTION]",
-    "link": null
+    "image": null,
+    "link": null,
+    "body": []
   }
 ]

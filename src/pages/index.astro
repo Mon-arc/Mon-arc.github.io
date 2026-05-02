@@ -8,9 +8,18 @@ import Contact from '../components/Contact.astro';
   <section id="hero" class="hero">
     <h1 class="name">Hassan Elshikh</h1>
     <div class="rule"></div>
+		<div class="title-group">
+		<h2 class= "title">
+			Computer Engineer
+		</h2>
+		<div class="rule"></div>
+		</div>
     <p class="subtitle">
-      Computer Engineering &nbsp;·&nbsp; Embedded &nbsp;·&nbsp; FPGA &nbsp;·&nbsp; Neurotech
+      Embedded &nbsp;·&nbsp; FPGA &nbsp;·&nbsp; Neurotech
     </p>
+    <div class="hero-contact">
+      <Contact />
+    </div>
   </section>
 
   <section id="about">
@@ -27,11 +36,6 @@ import Contact from '../components/Contact.astro';
     <h2 class="section-label">Skills</h2>
     <p class="skills-body">[SKILLS LIST]</p>
   </section>
-
-  <section id="contact">
-    <h2 class="section-label">Contact</h2>
-    <Contact />
-  </section>
 </Base>
 
 <style>
@@ -43,6 +47,8 @@ import Contact from '../components/Contact.astro';
     justify-content: center;
     text-align: center;
     padding: 2rem;
+
+		gap: 0.75rem;
   }
 
   .name {
@@ -53,20 +59,48 @@ import Contact from '../components/Contact.astro';
     color: var(--text-strong);
   }
 
+	.title-group {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
   .rule {
-    width: 52px;
-    height: 0.5px;
+    width: 500px;
+    height: 0.75px;
     background: var(--rule);
-    margin: 1.5rem auto;
+    margin: 0.25rem auto;
   }
 
-  .subtitle {
+  .rule2 {
+    width: 500px;
+    height: 0.75px;
+    background: var(--rule);
+    /* margin: 0rem auto; */
+  }
+
+  .title {
+    font-size: clamp(1rem, 2vw, 1.8rem);
+    color: rgba(220, 165, 75, 0.78);
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    line-height: 1.5;
+  }
+
+	.subtitle {
     font-size: clamp(0.7rem, 1.3vw, 0.85rem);
     color: rgba(220, 165, 75, 0.78);
     letter-spacing: 0.4em;
     text-transform: uppercase;
-    line-height: 2.4;
+    line-height: 1.5;
   }
+
+  .hero-contact {
+    margin-top: 3rem;
+    display: flex;
+    justify-content: center;
+  }
+
 
   .about-body,
   .skills-body {
@@ -75,4 +109,11 @@ import Contact from '../components/Contact.astro';
     line-height: 1.9;
     max-width: 62ch;
   }
+
+	.name,
+	.title,
+	.subtitle {
+		margin: 0;
+	}
+
 </style>
