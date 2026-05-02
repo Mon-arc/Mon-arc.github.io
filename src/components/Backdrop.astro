@@ -281,7 +281,7 @@
       if (isMobile) {
         // Single centered L channel; amplitude scaled but interaction stronger.
         const boost = MOUSE_BOOST * MOBILE_BOOST_MULT;
-        drawWaveformV(sampleL, W * 0.5, baseAmp * MOBILE_AMP_MULT, AMBER, boost);
+        drawWaveformV(sampleR, W * 0.5, baseAmp * MOBILE_AMP_MULT, AMBER, boost);
       } else {
         drawWaveformV(sampleL, W * L_X, baseAmp, AMBER, MOUSE_BOOST);
         drawWaveformV(sampleR, W * R_X, baseAmp, TEAL, MOUSE_BOOST);
