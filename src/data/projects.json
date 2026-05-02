@@ -6,7 +6,7 @@
     "year": 2026,
     "tags": ["STM32", "C/C++", "PCB design", "KiCad", "Signal Processing", "Circuit Design", "embedded"],
     "description": "A multi-channel mixer with motorized faders to consolidate audio signals and unify them as one output signal. RCA Inputs for analogue signals and USB-C for PC audio input, with RCA output for compatibility with common consumer amplifiers to drive audiophile headphones or speakers. Motorized faders for bidirectional control over respective channel volume either with physical fader movement or with software controls. STM32 used for motor controls, signal volume/attenuation control, serial communication, and SPI communication with circuit components.",
-    "image": "/projects/Fader diagram.png",
+    "image": "/projects/fader.png",
     "link": null,
     "body": [
 			"This project began because blah blah blah.",
