@@ -7,11 +7,19 @@
     "tags": ["stm32", "c/c++", "spi", "uart", "pcb design", "KiCad", "signal processing", "embedded"],
     "description": "A multi-channel mixer with motorized faders to consolidate audio signals and unify them as one output signal. RCA Inputs for analogue signals and USB-C for PC audio input, with RCA output for compatibility with common consumer amplifiers to drive audiophile headphones or speakers. Motorized faders for bidirectional control over respective channel volume either with physical fader movement or with software controls. STM32 used for motor controls, signal volume/attenuation control, serial communication, and SPI communication with circuit components.",
     "image": "/projects/fader.png",
-    "link": null,
+    "link": "https://github.com/mon-arc/fader",
     "body": [
-			"This project began because blah blah blah.",
-			"It's not done yet blah blah blah.",
-			"Next steps include blah blah blah."
+			"This project began because I wanted to be able to do a couple of things: Use my headphone amplifier for my PC audio, listen to my records while using my computer. I was inspired by a video on youtube where the producer for the album \"RIOT\" was demonstrating the way that he mixed the snare for the album. He had multiple different tracks which he controled with faders on this large mixer board at the studio. I then saw an advertisement for co-op opportunities at Metalworks studios, where the camera panned by another large mixer board with the faders moving on their own. That was when I had the idea of building my own small mixer board with motorized faders, and using it to accomplish my two goals.",
+
+			"I bought a few 100mm motorized faders off of AliExpress and got to work. The documentation on them was quite sparce as this is a product used for replacements/repairs on pre-existing boards, not for building a new product. I was able to identify the purpose of each pin on the fader using a multimeter and power source. Thankfully, one of the pins was used to identify when the fader was being touched or not. This turned out to be a very useful and convenient property of the fader, as I will not have to incorporate my own capacitive touch features the way I had planned. Quite the pleasant surprise.",
+
+			"I began by getting the fader to work with an STM32 to control my windows volume. This was not how I intended on controlling my PC audio on the mixer, but it was a small step in the right direction and getting something to actually work. So I wrote a C++ program to interact with the Windows EndpointVolume API and communicate with my STM32 Nucleo over UART. Eventually, I was able to bidirectionally control my windows audio, meaning I could control it from my computer but also from the 100mm Fader I ordered.",
+
+			"Now I am currently building a circuit to take my record player's signals in from RCA, attenuate the signals accordingly based off of the fader position, and output it back in RCA to be amplified by my headphone amplifier. The full circuit will do this a total of 4 times, since we have stereo audio (Left and Right channels) coming from two different sources (2 Channels x 2 Sources). The PC audio signal will be from a DAC board I found on amazon that outputs the signal to a 3.5mm connector which I can solder wires to and carry the signal to the circuit. Once both signals are processed they will be summed and outputed back in RCA to be amplified as one signal by my headphone amplifier. This circuit involves using some dual-channel op-amps, potentiometers, voltage controlled potentiometers (digital potentiomers) via SPI protocol, common electronics (capacitors, resistors, etc.), a bunch of soldering and debugging.",
+
+			"Next steps for this project include designing a PCB, CADing a housing to be either 3d printed or laser cut (aluminum housing would be nice). I also want to implement a third channel for potentially controlling separate programs on my computer, adding an OLED display, mute buttons, and a software program with sliders to control each respective channel separately.",
+
+			"I am in the process of debugging my circuit for unwanted noise, however doing so with just my ears and a multimeter poses to be quite the challenge. I am hoping to gain lab access soon at my university to be able to use a signal generator and oscilloscope to continue, and hopefully I will be able to make good progress very soon!"
 		]
   },
   {
@@ -20,10 +28,13 @@
     "status": "ongoing",
     "year": 2026,
     "tags": ["vhdl", "verilog", "mips assembly", "quartus prime", "fpga", "computer architecture"],
-    "description": "[DESCRIPTION]",
+    "description": "Designed a 32-bit RISC style CPU that implements MIPS assembly. The CPU involves a multi-cycle data path controlled by a finite state machine, ALU, memory interface, register file, multiplexers, instruction decoding, multi-cycle sequencing, and separate memory for data and instructions.",
     "image": "/projects/200.gif",
     "link": null,
-    "body": []
+    "body": [
+			"This project implements a custom instruction set architecture (ISA) with a hand-designed datapath and control unit, synthesized and deployed on an FPGA via Quartus prime. This started off as the result of my final lab for my computer organization and architecture (COE608) course. However I want to take this project to the next level.",
+			"Next steps involve synthesizing in Vivado and implementing on FPGA hardware, writing a Python assembler for the custom instruction set, and hopefully running a C program eventually."
+		]
   },
   {
     "title": "Static Site Generator",
@@ -31,10 +42,14 @@
     "status": "complete",
     "year": 2025,
     "tags": ["python", "bash", "unittest", "markdown", "html"],
-    "description": "A small, no framework static site generator that converts Markdown content into a fast and portable website using a minimal HTML template.",
+    "description": "A no-framework static-site generator built from scratch in Python. Converts Markdown content into a fast, portable website using a minimal HTML template.",
     "image": null,
-    "link": null,
-    "body": []
+    "link": "https://github.com/Mon-arc/static-site-project",
+    "body": [
+			"This project was made as a means to solidify my understanding of Python after a period of self-learning. The program takes a markdown file as input, cleans it and parses it then converts it to HTML.",
+			"Drop pages into `content/`, run `main.sh`, and the `dist/` directory is generated for you. I built this to learn the static-site fundamentals (parsing, templating, routing, asset handling) and become fluent in Python.",
+			"This project has a Markdown -> HTML pipeline with a single shared layout template, asset passthrough (everything in `static/` is copied as is), and uses zero external dependencies (Python standard library: os, shutil, pathlib, re, unittest)"
+		]
   },
   {
     "title": "Custom 16-bit CPUs",
@@ -44,8 +59,11 @@
     "tags": ["vhdl", "quartus ii", "fpga", "digital design"],
     "description": "3 16-bit CPUs with custom instruction sets, each with distinct functionality using VHDL within Quartius II.",
     "image": null,
-    "link": null,
-    "body": []
+    "link": "https://github.com/Mon-arc/General-Purpose-CPU-Design",
+    "body": [
+			"Designed and implemented three distinct general-purpose CPUs in VHDL as part of COE328 (Digital Systems) at TMU. Each CPU is built from reusable modular components: an 8-bit register file, Moore FSM cycling through 8 states, hierarchichal 4:16 decoder for opcode generation, and three different ALUs covering arithmetic, bitwise, shift, rotate, and decision-based operations.",
+			"All designs were verified through VHDL simulation waveforms, truth tables, hand calculations, and live FPGA board testing."
+		]
   },
   {
     "title": "Maze Generator",
@@ -55,7 +73,9 @@
     "tags": ["python", "backtracking", "graphics", "recursion", "seeding", "algorithms"],
     "description": "A python-based maze generator and solver with real-time visualization using Tkinter.",
     "image": null,
-    "link": null,
-    "body": []
+    "link": "https://github.com/Mon-arc/maze-solver",
+    "body": [
+			"A Python program that generates and solves mazes in real time, with step-by-step animation rendered in a Tkinter window. Mazes are carved using recursive backtracking, and solving is done with DFS + Backtracking, showing forward moves in red and dead-end retreats in gray. Supports seeded runs for deterministic and reproducible mazes and clean separation between logic and visualization layers."
+		]
   }
 ]

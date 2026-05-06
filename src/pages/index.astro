@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Projects from '../components/Projects.astro';
 import Contact from '../components/Contact.astro';
+import neurotechBody from '../data/neurotech.json';
 ---
 
 <Base>
@@ -24,12 +25,13 @@ import Contact from '../components/Contact.astro';
 
   <section id="about">
     <h2 class="section-label">About</h2>
-    <p class="about-body">[ABOUT TEXT]</p>
+		<p class="about-body">I'm a third year computer engineering student passionate about biotech, hardware, and embedded engineering. I aim to specialize at the boundary between hardware and the physical world, building systems that bridge silicon and biology, sound, and human experience.</p>
   </section>
 
   <section id="neurotech">
     <h2 class="section-label">Neurotech</h2>
-    <p class="neurotech-body">[NEUROTECH TEXT]</p>
+    <img class="neurotech-logo" src="/Amber inverse cropped.png" alt="Neurotech logo" />
+    {neurotechBody.map((paragraph) => <p class="neurotech-body">{paragraph}</p>)}
   </section>
 
   <section id="projects">
@@ -39,7 +41,9 @@ import Contact from '../components/Contact.astro';
 
   <section id="skills">
     <h2 class="section-label">Skills</h2>
-    <p class="skills-body">[SKILLS LIST]</p>
+    <p class="skills-body"><span class="skill-label">Tools:</span> KiCad · Quartus/Vivado · SOLIDWORKS · Simulink · Oscilloscopes · Logic Analyzer · ModelSim · LTspice</p>
+		<p class="skills-body"><span class="skill-label">Languages:</span> C/C++ · Python · Java · Verilog · VHDL · Bash · SQL · Assembly (MIPS, HCS12)</p>
+    <p class="skills-body"><span class="skill-label">Other skills:</span> STM32/ESP32/ARM Cortex-M · 3D printing · Mixed-signal Circuit Design · RTL design</p>
   </section>
 </Base>
 
@@ -114,6 +118,34 @@ import Contact from '../components/Contact.astro';
     font-size: 1rem;
     line-height: 1.9;
     max-width: 62ch;
+  }
+
+  #neurotech {
+    display: flow-root;
+  }
+
+  .about-body,
+  .neurotech-body,
+  .skills-body {
+    max-width: none;
+  }
+
+  .neurotech-body + .neurotech-body,
+  .skills-body + .skills-body {
+    margin-top: 1.5rem;
+  }
+
+  .skill-label {
+    color: var(--accent);
+    font-weight: 400;
+    margin-right: 0.4rem;
+  }
+
+  .neurotech-logo {
+    float: left;
+    width: 140px;
+    height: auto;
+    margin: 0 1.75rem 1rem 0;
   }
 
 	.name,
