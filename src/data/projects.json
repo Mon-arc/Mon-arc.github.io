@@ -29,7 +29,7 @@
     "year": 2026,
     "tags": ["vhdl", "verilog", "mips assembly", "quartus prime", "fpga", "computer architecture"],
     "description": "Designed a 32-bit RISC style CPU that implements MIPS assembly. The CPU involves a multi-cycle data path controlled by a finite state machine, ALU, memory interface, register file, multiplexers, instruction decoding, multi-cycle sequencing, and separate memory for data and instructions.",
-    "image": "/projects/200.gif",
+    "image": "/projects/RISC-CPU.jpg",
     "link": null,
     "body": [
 			"This project implements a custom instruction set architecture (ISA) with a hand-designed datapath and control unit, synthesized and deployed on an FPGA via Quartus prime. This started off as the result of my final lab for my computer organization and architecture (COE608) course. However I want to take this project to the next level.",
@@ -58,7 +58,7 @@
     "year": 2024,
     "tags": ["vhdl", "quartus ii", "fpga", "digital design"],
     "description": "3 16-bit CPUs with custom instruction sets, each with distinct functionality using VHDL within Quartius II.",
-    "image": null,
+    "image": "/projects/COE328.jpg",
     "link": "https://github.com/Mon-arc/General-Purpose-CPU-Design",
     "body": [
 			"Designed and implemented three distinct general-purpose CPUs in VHDL as part of COE328 (Digital Systems) at TMU. Each CPU is built from reusable modular components: an 8-bit register file, Moore FSM cycling through 8 states, hierarchichal 4:16 decoder for opcode generation, and three different ALUs covering arithmetic, bitwise, shift, rotate, and decision-based operations.",
@@ -72,7 +72,7 @@
     "year": 2025,
     "tags": ["python", "backtracking", "graphics", "recursion", "seeding", "algorithms"],
     "description": "A python-based maze generator and solver with real-time visualization using Tkinter.",
-    "image": null,
+    "image": "/projects/Maze-gen-and-solver.gif",
     "link": "https://github.com/Mon-arc/maze-solver",
     "body": [
 			"A Python program that generates and solves mazes in real time, with step-by-step animation rendered in a Tkinter window. Mazes are carved using recursive backtracking, and solving is done with DFS + Backtracking, showing forward moves in red and dead-end retreats in gray. Supports seeded runs for deterministic and reproducible mazes and clean separation between logic and visualization layers."

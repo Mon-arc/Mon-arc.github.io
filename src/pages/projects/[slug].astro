@@ -60,7 +60,7 @@ const { project } = Astro.props;
 
 <style>
   .project-page {
-    max-width: 760px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 8rem 2rem 6rem;
   }
@@ -135,6 +135,7 @@ const { project } = Astro.props;
 
   .hero-image {
     margin: 3rem 0;
+    max-width: 640px;
     border: 0.5px solid var(--rule);
   }
   .hero-image img {
@@ -151,13 +152,9 @@ const { project } = Astro.props;
     font-size: 1rem;
     line-height: 1.85;
   }
-  .body p {
-    max-width: 62ch;
-  }
-
   .body-figure {
     margin: 0.5rem 0;
-    max-width: 62ch;
+    max-width: 640px;
   }
   .body-figure img {
     display: block;
